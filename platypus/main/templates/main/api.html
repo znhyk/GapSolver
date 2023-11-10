@@ -1,0 +1,57 @@
+<html>
+<head>
+    <title>Fetch API 요청</title>
+</head>
+<body>
+    <form id="myForm">
+        {% csrf_token %}
+        <label for="tableName">테이블 이름:</label>
+        <input type="text" id="tableName"><br><br>
+
+        <label for="primaryKey">주요키:</label>
+        <input type="text" id="primaryKey"><br><br>
+
+        <button type="button" onclick="sendRequest()">요청 보내기</button>
+    </form>
+
+    <script>
+        function sendRequest() {
+            const url = 'api_get_db'; // 실제 서버의 API 엔드포인트 URL로 대체해야 합니다.
+
+            const form = document.getElementById('myForm');
+            const formData = new FormData(form);
+            const tableName = document.getElementById('tableName').value;
+            const primaryKey = document.getElementById('primaryKey').value;
+
+            const requestData = {
+                table: tableName,
+                primaryKey: primaryKey
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')  // CSRF 토큰을 요청 헤더에 추가
+                },
+                body: JSON.stringify(requestData), // FormData를 JSON으로 변환
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json(); // JSON 형식의 응답을 파싱
+                }
+                throw new Error('Network response was not ok.');
+            })
+            .then(data => {
+                // 서버로부터 받은 JSON 데이터 활용
+                console.log('서버로부터 받은 데이터:', data);
+                alert(data.json())
+                // 여기서 데이터를 활용하여 원하는 작업을 수행할 수 있습니다.
+            })
+            .catch(error => {
+                // 오류 처리
+                console.error('오류 발생:', error);
+            });
+        }
+    </script>
+</body>
+</html>

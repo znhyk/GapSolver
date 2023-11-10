@@ -1,0 +1,26 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>회원가입</title>
+</head>
+<body>
+    <h2>회원가입</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <label for="id_username">아이디:</label>
+            <input type="text" id="id_username" name="useremail" required>
+        </div>
+        <div>
+            <label for="id_password">비밀번호:</label>
+            <input type="password" id="id_password" name="password" required>
+        </div>
+        <div>
+            <label for="id_password">별명:</label>
+            <input type="text" id="id_nickname" name="nickname" required>
+        </div>
+        <button type="submit">가입하기</button>
+    </form>
+</body>
+</html>

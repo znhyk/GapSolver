@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSON 데이터로 DB 수정</title>
+    <style>
+        textarea {
+            width: 80%; /* textarea를 더 넓게 설정 */
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <form id="myForm">
+        {% csrf_token %}
+    </form>
+    <label for="url">URL:</label>
+        <input type="text" id="URL"><br><br>
+    <p>EX{"table": "YOUR_TABLE_NAME", "primaryKey": "YOUR_PRIMARY_KEY", "updateForm": {"YOUR_FIELD_1": "NEW_VALUE_1", "YOUR_FIELD_2": "NEW_VALUE_2"}}</p>
+    <br>
+    <p>EX{"test_bank_pk": "", "type":"", "question": "", "makeForm": {"ox_answer": "X"}}</p>
+    <textarea id="jsonTextArea" placeholder='{"table": "YOUR_TABLE_NAME", "primaryKey": "YOUR_PRIMARY_KEY", "updateForm": {"YOUR_FIELD_1": "NEW_VALUE_1", "YOUR_FIELD_2": "NEW_VALUE_2"}}'></textarea>
+    <button onclick="sendRequest();">수정 요청 보내기</button>
+
+    <textarea id="responseTextArea" placeholder="서버 응답이 여기에 표시됩니다." readonly></textarea>
+
+    <script>
+        function sendRequest() {
+            const jsonText = document.getElementById('jsonTextArea').value;
+            const url = document.getElementById('URL').value;; // 실제 서버의 API 엔드포인트 URL로 대체해야 합니다.
+            const form = document.getElementById('myForm');
+            const formData = new FormData(form);
+            try {
+                const jsonData = JSON.parse(jsonText);
+                // AJAX POST request
+                fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')  // CSRF 토큰을 요청 헤더에 추가
+                },
+                body: JSON.stringify(jsonData), // FormData를 JSON으로 변환
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const responseTextArea = document.getElementById('responseTextArea');
+                    responseTextArea.value = JSON.stringify(data, null, 2); // 서버 응답을 textarea에 출력
+                    console.log('서버 응답:', data);
+                    // 여기서 서버 응답에 대한 처리를 할 수 있습니다.
+                });
+            } catch (error) {
+                console.error('올바른 JSON 데이터를 입력하세요:', error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document</title>
+{% csrf_token %}
+</head>
+<body>
+<h1>INDEXPAGE</h1>
+<ul>
+    <ul>
+        {% for key, value in data.items %}
+            <li>{{ key }}: {{ value }}</li>
+        {% endfor %}
+    </ul>
+</ul>
+<p>제한 시간: <span id="time">10</span></p>
+<p>문제:<span id='id_question'></span></p>
+<br>
+<fieldset id="id_ox" style="display: none;">
+    <legend>OX 답 작성</legend>
+    <button onclick="solve(value)" value="O">O</button>
+    <button onclick="solve(value)" value="X">X</button>
+</fieldset>
+<fieldset id="id_mt" style="display: none;">
+    <legend>객관식 답 작성</legend>
+    <button onclick="solve(value)" value="1">1번</button>
+    <button onclick="solve(value)" value="2">2번</button>
+    <br>
+    <button onclick="solve(value)" value="3">3번</button>
+    <button onclick="solve(value)" value="4">4번</button>
+</fieldset>
+<fieldset id="id_sa" style="display: none;">
+    <legend>주관식 답 작성</legend>
+    <input type="text" id="id_sa_answer">
+    <button onclick="solveSA()">OK</button> 
+</fieldset>
+<script>
+const test_bank_pk = '{{ data.test_bank_pk }}';
+const email = '{{ data.email }}';
+const learner_pk = '{{ data.learner_pk }}'
+//const teacher_pk = '{{ data.teacher_pk }}'
+let test_keys_str = "{{ data.test_keys_list | safe }}"; // data 값 가져오기, | safe는 HTML 엔티티를 디코딩하기 위해 사용
+const test_keys_list = JSON.parse(test_keys_str.replace(/'/g, '"'));
+alert('준비되셨나요?')
+const test_length = test_keys_list.length;
+let test_pk_index = test_length-1;
+let index = 10; //timeindex
+let l_answer;
+let t_answer; 
+let score = 0;
+
+//시험을 종료하고 채점함.
+function endTest(){
+    alert(`총 문제:${test_length} 중 ${score}개 맞춤!`)
+    const url = 'api_end_test';
+    const requestData = {
+        test_bank_pk: test_bank_pk,
+        learner_pk: learner_pk,
+        test_length: test_length,
+        score: score,
+    };
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken  // CSRF 토큰을 요청 헤더에 추가
+        },
+        body: JSON.stringify(requestData), // FormData를 JSON으로 변환
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('서버 응답:', data);
+        alert(JSON.stringify(data))
+        const newURL = `/testbank_detail?pk=${test_bank_pk}`;
+        window.location.href = newURL;
+        // 여기서 서버 응답에 대한 처리를 할 수 있습니다.
+    });
+}
+//
+function sendRequestGTQZ() {//QZPK로 정보가져옴
+    if (test_pk_index < 0){
+        endTest();
+    } else {}
+    let test_pk = test_keys_list[test_pk_index]
+    //json에 할당
+    const url = 'api_get_db';
+    const requestData = {
+        table: 'TEST_TABLE',
+        primaryKey: test_pk,
+    };
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // CSRF 토큰을 요청 헤더에 추가
+                },
+                body: JSON.stringify(requestData), // FormData를 JSON으로 변환
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('서버 응답:', data);
+        test_pk_index = test_pk_index - 1
+        alert(JSON.stringify(data))
+        document.getElementById('id_question').textContent = data.data.question
+        type = data.data.type;
+        if (type === 'OX'){
+            t_answer = data.data.ox_answer;
+            document.getElementById('id_ox').style.display = 'block';
+            document.getElementById('id_mt').style.display = 'none';
+            document.getElementById('id_sa').style.display = 'none';
+        } else if (type === 'MT'){
+            t_answer = data.data.mt_answer;
+            document.getElementById('id_ox').style.display = 'none';
+            document.getElementById('id_mt').style.display = 'block';
+            document.getElementById('id_sa').style.display = 'none';
+        } else {
+            t_answer = data.data.sa_answer;
+            document.getElementById('id_ox').style.display = 'none';
+            document.getElementById('id_mt').style.display = 'none';
+            document.getElementById('id_sa').style.display = 'block';
+        };
+        // 여기서 서버 응답에 대한 처리를 할 수 있습니다.
+    });
+}
+//
+function solve(value) {
+    l_answer = value;
+    if (l_answer === t_answer) {
+        alert('정답!'+'(답안)'+l_answer+'(답)'+t_answer)
+        score = score + 1;
+    } else {
+        alert('오답!'+'(답안)'+l_answer+'(답)'+t_answer)
+    }
+    index = 0;
+}
+//
+function solveSA() {
+    l_answer = document.getElementById('id_sa_answer').value;
+    if (l_answer === t_answer) {
+        alert('정답!'+'(답안)'+l_answer+'(답)'+t_answer)
+        score = score + 1;
+    } else {
+        alert('오답!'+'(답안)'+l_answer+'(답)'+t_answer)
+    }
+    index = 0;
+}
+//초시계
+function startTimer() {
+    const timeElement = document.getElementById('time');
+    // 1초 간격으로 index를 감소시키는 함수
+    const decrementIndex = () => {
+    timeElement.textContent = index;
+        if (index === 0) {
+            sendRequestGTQZ();
+            index = 10;
+        } else {
+            index--;
+        }
+    };
+    // 1초마다 decrementIndex 함수 실행
+    setInterval(decrementIndex, 800);
+}
+// 페이지가 로드되면 타이머 시작
+window.onload = function() {
+    sendRequestGTQZ();
+    startTimer();
+}
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+</body>
+</html>

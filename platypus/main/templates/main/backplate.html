@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+{% csrf_token %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      position: relative;
+    }
+
+    img {
+      width: 383px;
+      height: 939px;
+      object-fit: cover; /* 이미지 비율 유지하면서 잘리지 않도록 설정 */
+    }
+
+    .transparent-button {
+      position: absolute;
+      /*top: 20px; /* 상위 컨테이너(.container)의 위에서 20px 떨어진 위치에 버튼 배치 */
+      /*right: 20px; /* 상위 컨테이너(.container)의 오른쪽에서 20px 떨어진 위치에 버튼 배치 */
+      background: transparent;
+      color: white;
+      padding: 10px;
+      border: 1px solid white;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.5)
+    }
+
+    .transparent-text {
+      position: absolute;
+      /*bottom: 20px; /* 상위 컨테이너(.container)의 아래에서 20px 떨어진 위치에 텍스트 배치 */
+      /*left: 20px; /* 상위 컨테이너(.container)의 왼쪽에서 20px 떨어진 위치에 텍스트 배치 */
+      color: rgb(0, 0, 0);
+      font-size: 18px;
+    }
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.5);
+    }
+  </style>
+  <title>BACKPLATE</title>
+</head>
+<body>
+  <div class="container">
+    <img src="{% static 'img/backplate2.png' %}" alt="Your Image">
+    <div class="overlay">
+    <div class="transparent-text" style="top: 130px; left: 175px">경영경제통계학</div>
+    <button class="transparent-button" onclick="alert('책!');" style="width: 120px; height: 150px; top:120px; right:265px">Click me</button>
+    <button class="transparent-button" style="width: 400px; height: 80px; top:320px; right:0px">Click me</button>
+    <button class="transparent-button" style="width: 400px; height: 80px; top:400px; right:0px">Click me</button>
+    <button class="transparent-button" style="width: 400px; height: 80px; top:480px; right:0px">Click me</button>
+    <button class="transparent-button" style="width: 100px; height: 40px; top:530px; right:150px">Click me</button>
+  </div>
+  </div>
+<script>
+</script>
+</body>
+</html>

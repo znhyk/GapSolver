@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'NanumSquare', sans-serif;
+    }
+
+    .container {
+      position: relative;
+    }
+
+    img {
+      width: 383px;
+      height: 939px;
+      object-fit: cover; /* 이미지 비율 유지하면서 잘리지 않도록 설정 */
+    }
+
+    .transparent-img {
+        position: absolute;
+        width: 120px;
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .transparent-button {
+      position: absolute;
+      /*top: 20px; /* 상위 컨테이너(.container)의 위에서 20px 떨어진 위치에 버튼 배치 */
+      /*right: 20px; /* 상위 컨테이너(.container)의 오른쪽에서 20px 떨어진 위치에 버튼 배치 */
+      background: transparent;
+      color: white;
+      padding: 10px;
+      border: 0px solid white;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.0)
+    }
+
+    .transparent-text {
+      position: absolute;
+      /*bottom: 20px; /* 상위 컨테이너(.container)의 아래에서 20px 떨어진 위치에 텍스트 배치 */
+      /*left: 20px; /* 상위 컨테이너(.container)의 왼쪽에서 20px 떨어진 위치에 텍스트 배치 */
+      color: rgb(0, 0, 0);
+      font-size: 18px;
+    }
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.0);
+    }
+</style>
+<title>Document</title>
+{% csrf_token %}
+</head>
+<body>
+<div class="container">
+<img src="{% static 'img/bp_index.png' %}" alt="banner">
+
+<div class="overlay">
+    <img src="{% static 'img/bottom_menu.png' %}" id="id_bottom_menu" class="transparent-img" style="bottom: 6px; left:0px; width: 383px; height: 82px; display: none;">
+    <button onclick="goToScanner();" class="transparent-button" style="top:588px; left:20px; width:335px; height:46px;"></button>
+    <button onclick="goToMKTBSlide();" class="transparent-button" style="top:860px; left:166px; width:50px; height:50px;"></button>
+    
+</div>
+</div>
+<!--
+테뱅이름
+<input type="text" id="id_test_bank_name" name="test_bank_name" required>
+책이름
+<input type="text" id="id_book_name" name="book_name" required>
+분야
+<input type="text" id="id_genre_code" name="genre_code" required>
+<button onclick="sendRequestMKTB();">테뱅만들기</button>
+-->
+<script>
+function goToMKTBSlide(){
+    window.location.href = '/create_testbank?pk=TB0517'
+}
+function changeMenu() {
+    element = document.getElementById('id_bottom_menu')
+    if (element.style.display == "none"){
+        element.style.display = "block"
+    } else {
+        element.style.display = "none"
+    }
+}
+function sendRequestMKTB() {
+    changeMenu();
+    //json에 할당
+    const url = 'api_make_testbank';
+    const test_bank_name = '조직이론 테뱅';//document.getElementById("id_test_bank_name").value;
+    const book_name = '조직이론';//document.getElementById("id_book_name").value;//
+    const genre_code = '경영경제'//document.getElementById('id_genre_code').value;//
+    const requestData = {
+        test_bank_name: test_bank_name,
+        book_name: book_name,
+        genre_code: genre_code,
+    };
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // CSRF 토큰을 요청 헤더에 추가
+                },
+                body: JSON.stringify(requestData), // FormData를 JSON으로 변환
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('서버 응답:', data);
+        const test_bank_pk = data.data.test_bank_pk
+        const newURL = `/create_testbank?pk=${test_bank_pk}`;
+        window.location.href = newURL;
+        // 여기서 서버 응답에 대한 처리를 할 수 있습니다.
+    });
+}
+function generateRandomString(length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let randomString = '';
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    randomString += characters.charAt(randomIndex);
+  }
+
+  return randomString;
+}
+
+function goToScanner(){
+    window.location.href = '/scanner';
+};
+function goToMakeTB(){
+    window.location.href = `/create_testbank?pk=T${generateRandomString(8)}`;
+};
+</script>
+</body>
+</html>

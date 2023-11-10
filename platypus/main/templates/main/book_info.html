@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+{% csrf_token %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-square.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'NanumSquare', sans-serif;
+    }
+
+    .container {
+      position: relative;
+    }
+
+    img {
+      width: 383px;
+      height: 939px;
+      object-fit: cover; /* 이미지 비율 유지하면서 잘리지 않도록 설정 */
+    }
+
+    .transparent-img {
+        position: absolute;
+        width: 120px;
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .transparent-button {
+      position: absolute;
+      /*top: 20px; /* 상위 컨테이너(.container)의 위에서 20px 떨어진 위치에 버튼 배치 */
+      /*right: 20px; /* 상위 컨테이너(.container)의 오른쪽에서 20px 떨어진 위치에 버튼 배치 */
+      background: transparent;
+      color: white;
+      padding: 10px;
+      border: 0px solid white;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.0)
+    }
+
+    .transparent-text {
+      position: absolute;
+      /*bottom: 20px; /* 상위 컨테이너(.container)의 아래에서 20px 떨어진 위치에 텍스트 배치 */
+      /*left: 20px; /* 상위 컨테이너(.container)의 왼쪽에서 20px 떨어진 위치에 텍스트 배치 */
+      color: rgb(0, 0, 0);
+      font-size: 18px;
+    }
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.0);
+    }
+  </style>
+  <title>BACKPLATE</title>
+</head>
+<body>
+  <div class="container">
+    <img src="{% static 'img/bp_book_info.png' %}" alt="banner">
+    <div class="overlay">
+    <div class="transparent-text" style="top: 125px; left: 150px"><b>제목</b> <span id="id_book_name">경영경제통계학</span></div>
+    <div class="transparent-text" style="top: 150px; left: 150px"><b>저자</b> <span id="id_author">David P.</span></div>
+    <div class="transparent-text" style="top: 175px; left: 150px"><b>장르</b> <span id="id_genre">경영경제</span></div>
+    <div class="transparent-text" style="top: 271px; left: 105px"><small><lead><span id="id_testbank_count">N</span>건</lead></small></div>
+    <div class="transparent-text" style="top: 315px; left: 30px"><b id="id_testbank_name_1">조직이론기초탄탄10문제</b></span></div>
+    <div class="transparent-text" style="top: 335px; left: 30px; color: gray; font-size: 14px;"><b id="id_teacher_name1">킹갓경희대학원생</b></span></div>
+    <div class="transparent-text" style="top: 385px; left: 30px"><b id="id_testbank_name_2">조직이론기초탄탄10문제</b></span></div>
+    <div class="transparent-text" style="top: 405px; left: 30px; color: gray; font-size: 14px;"><b id="id_teacher_name2">킹갓경희대학원생</b></span></div>
+    <div class="transparent-text" style="top: 455px; left: 30px"><b id="id_testbank_name_3">조직이론기초탄탄10문제</b></span></div>
+    <div class="transparent-text" style="top: 475px; left: 30px; color: gray; font-size: 14px;"><b id="id_teacher_name3">킹갓경희대학원생</b></span></div>    
+    <img class="transparent-img" src="{% static 'img/stats.png' %}" style="top:120px; left:20px;"></div>
+    <button class="transparent-button" onclick="alert('책!');" style="width: 120px; height: 150px; top:120px; left:15px"></button>
+    <button class="transparent-button" style="width: 350px; height: 70px; top:300px; right:20px"></button>
+    <button class="transparent-button" style="width: 350px; height: 70px; top:370px; right:20px"></button>
+    <button class="transparent-button" style="width: 350px; height: 70px; top:440px; right:20px"></button>
+    <button class="transparent-button" style="width: 100px; height: 40px; top:580px; right:145px"></button>
+    <button class="transparent-button" onclick="goNextUrl();" style="width: 383px; height: 939px; top:0px; left:0px">Click me</button>
+  </div>
+  </div>
+<script>
+function goNextUrl(){
+  window.location.href = '/justsolve_1';
+}
+
+//어차피 아래는 안씀
+let book_name = '{{ data.book_name }}';
+let ISBN_code = '{{ data.ISBN_code }}';
+let genre_code = '{{ data.genre_code }}';
+let hash_note = '{{ data.hash_note }}';//그냥 저자로 함
+let testbank_count = '{{ data.testbank_count }}';
+let testbank_pk_list = '{{ data.testbank_pk_list }}'
+let testbank_name_list = '{{ data.testbank_name_list }}'
+
+function dataInputer(){
+  document.getElementById('id_book_name').innerHTML = book_name; 
+  document.getElementById('id_genre').innerHTML = genre_code;
+  document.getElementById('id_author').innerHTML = hash_note;
+  document.getElementById('id_testbank_count').innerHTML = testbank_count;
+}
+
+//testbank_name_list = JSON.parse(testbank_name_list);
+//document.getElementById('id_testbank_name_1').innerHTML = testbank_name_list[0];
+//dataInputer();
+
+</script>
+</body>
+</html>

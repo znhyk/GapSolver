@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+{% csrf_token %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-square.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> <!-- Axios CDN -->
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'NanumSquare', sans-serif;
+    }
+
+    .container {
+      position: relative;
+    }
+
+    video {
+      width: 383px;
+      height: 621px;
+      object-fit: cover; /* 비디오 비율 유지하면서 잘리지 않도록 설정 */
+      position: absolute;
+      top: 147px;
+      left: 0px;
+    }
+
+    img {
+      width: 383px;
+      height: 939px;
+      object-fit: cover; /* 이미지 비율 유지하면서 잘리지 않도록 설정 */
+    }
+
+    .transparent-img {
+        position: absolute;
+        width: 120px;
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .transparent-button {
+      position: absolute;
+      /*top: 20px; /* 상위 컨테이너(.container)의 위에서 20px 떨어진 위치에 버튼 배치 */
+      /*right: 20px; /* 상위 컨테이너(.container)의 오른쪽에서 20px 떨어진 위치에 버튼 배치 */
+      background: transparent;
+      color: white;
+      padding: 10px;
+      border: 0px solid white;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.0)
+    }
+
+    .transparent-text {
+      position: absolute;
+      /*bottom: 20px; /* 상위 컨테이너(.container)의 아래에서 20px 떨어진 위치에 텍스트 배치 */
+      /*left: 20px; /* 상위 컨테이너(.container)의 왼쪽에서 20px 떨어진 위치에 텍스트 배치 */
+      color: rgb(0, 0, 0);
+      font-size: 18px;
+    }
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.0);
+    }
+  </style>
+
+</head>
+<body>
+  <div class="container">
+    <img src="{% static 'img/bp_scanner.png' %}" alt="banner">
+    <div class="overlay">
+        
+        <div>
+            <video id="video" width="383" height="480" autoplay></video>
+            
+            <button id="snap" class="transparent-button" style="top:790px; left:160px; width:60px; height:60px;"></button>
+            <img src="{% static 'img/scan_area.png' %}" class="transparent-img" style="top:550px; left:65px; width:250px; height:90px;">
+        </div>
+    <button class="transparent-button" onclick="secretExit();" style="top:790px; left:300px; width:60px; height:60px;"></button>
+    
+</div>
+  </div>
+<script>
+
+function secretExit() {
+    alert('ISBN:9780199122264')
+    const secret_book_pk = 'B6392374'
+    window.location.href = `/book_info?pk=${secret_book_pk}`;
+}
+//ISBN찾는 api
+function sendISBNSearch(ISBN) {
+    //json에 할당
+    const url = 'api_search_testbank_by_ISBN';
+    const requestData = {
+        ISBN: ISBN,
+    };
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // CSRF 토큰을 요청 헤더에 추가
+                },
+                body: JSON.stringify(requestData), // FormData를 JSON으로 변환
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('서버 응답:', data);
+        const book_pk = data.book_pk;
+        const testbank_count = data.testbank_count;
+        let message = data.message
+        if (message == 'ERR'){
+            window.location.href = `/scanner`;
+        }
+        else {
+            window.location.href = `/book_info`;
+        }    
+        // 여기서 서버 응답에 대한 처리를 할 수 있습니다.
+    });
+}
+    //카메라 접근 및 사진찍기
+navigator.mediaDevices.getUserMedia({video: true})//{ video: { facingMode: 'environment' } }
+    .then(stream => {
+        const video = document.getElementById('video');
+        video.srcObject = stream;
+    })
+    .catch(err => {
+        console.error('카메라에 접근할 수 없습니다.', err);
+    });
+
+    const snapButton = document.getElementById('snap');
+    snapButton.addEventListener('click', () => {
+        const video = document.getElementById('video');
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob(blob => {
+            const formData = new FormData();
+            formData.append('image', blob, 'snapshot.jpg');
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            // Axios를 사용하여 이미지를 서버로 전송
+            axios.post('api_barcode_reader', formData)
+                .then(response => {
+                    alert(response.data);
+                    sendISBNSearch(response.data);
+                })
+                .catch(error => {
+                    console.error('이미지를 서버로 전송하는 중 오류가 발생했습니다.', error);
+                });
+        }, 'image/jpeg');
+    });
+</script>
+</body>
+</html>

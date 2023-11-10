@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'NanumSquare', sans-serif;
+    }
+
+    .container {
+      position: relative;
+    }
+
+    img {
+      width: 383px;
+      height: 939px;
+      object-fit: cover; /* 이미지 비율 유지하면서 잘리지 않도록 설정 */
+    }
+
+    .transparent-img {
+        position: absolute;
+        width: 120px;
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .transparent-button {
+      position: absolute;
+      /*top: 20px; /* 상위 컨테이너(.container)의 위에서 20px 떨어진 위치에 버튼 배치 */
+      /*right: 20px; /* 상위 컨테이너(.container)의 오른쪽에서 20px 떨어진 위치에 버튼 배치 */
+      background: transparent;
+      color: white;
+      padding: 10px;
+      border: 0px solid white;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.0)
+    }
+
+    .transparent-text {
+      position: absolute;
+      /*bottom: 20px; /* 상위 컨테이너(.container)의 아래에서 20px 떨어진 위치에 텍스트 배치 */
+      /*left: 20px; /* 상위 컨테이너(.container)의 왼쪽에서 20px 떨어진 위치에 텍스트 배치 */
+      color: rgb(0, 0, 0);
+      font-size: 18px;
+    }
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.0);
+    }
+</style>
+<title>Document</title>
+{% csrf_token %}
+</head>
+<body>
+<div class="container">
+<img src="{% static 'img/bp_js2.png' %}" alt="banner">
+
+<div class="overlay">
+    <button id='id_1' onclick="nextSlide_1();" class="transparent-button" style="top:0px; left:0px; width:383px; height:939px;"></button>
+    <button id='id_2' onclick="nextSlide_2();" class="transparent-button" style="top:0px; left:0px; width:383px; height:939px; display:none;"></button>
+    <button id='id_3' onclick="nextUrl();" class="transparent-button" style="top:0px; left:0px; width:383px; height:939px; display:none;"></button>
+    <div id='id_a' class="transparent-text" style="top: 470px; left: 40px; display:none;">제한된 합리성</div>
+    <div id='id_b' class="transparent-text" style="top: 770px; left: 40px; display:none;">4</div>
+  </div>
+</div>
+<!--
+테뱅이름
+<input type="text" id="id_test_bank_name" name="test_bank_name" required>
+책이름
+<input type="text" id="id_book_name" name="book_name" required>
+분야
+<input type="text" id="id_genre_code" name="genre_code" required>
+<button onclick="sendRequestMKTB();">테뱅만들기</button>
+-->
+<script>
+function nextSlide_1(){
+    document.getElementById('id_a').style.display = 'block';
+    document.getElementById('id_1').style.display = 'none';
+    document.getElementById('id_2').style.display = 'block';
+}
+function nextSlide_2(){
+    document.getElementById('id_b').style.display = 'block';
+    document.getElementById('id_2').style.display = 'none';
+    document.getElementById('id_3').style.display = 'block';
+}
+function nextUrl(){
+    window.location.href = '/justsolve_3';
+}
+function changeMenu() {
+    element = document.getElementById('id_bottom_menu')
+    if (element.style.display == "none"){
+        element.style.display = "block"
+    } else {
+        element.style.display = "none"
+    }
+}
+</script>
+</body>
+</html>

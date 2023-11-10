@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% load static %}
+{% csrf_token %}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-square.css" rel="stylesheet">
+<title>Document</title>
+
+<style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'NanumSquare', sans-serif;
+    }
+
+    .container {
+      position: relative;
+    }
+
+    img {
+      width: 383px;
+      height: 939px;
+      object-fit: cover; /* 이미지 비율 유지하면서 잘리지 않도록 설정 */
+    }
+
+    .transparent-img {
+        position: absolute;
+        width: 120px;
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .transparent-button {
+      position: absolute;
+      /*top: 20px; /* 상위 컨테이너(.container)의 위에서 20px 떨어진 위치에 버튼 배치 */
+      /*right: 20px; /* 상위 컨테이너(.container)의 오른쪽에서 20px 떨어진 위치에 버튼 배치 */
+      background: transparent;
+      color: white;
+      padding: 10px;
+      border: 0px solid white;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.0)
+    }
+
+    .transparent-text {
+      position: absolute;
+      /*bottom: 20px; /* 상위 컨테이너(.container)의 아래에서 20px 떨어진 위치에 텍스트 배치 */
+      /*left: 20px; /* 상위 컨테이너(.container)의 왼쪽에서 20px 떨어진 위치에 텍스트 배치 */
+      color: rgb(0, 0, 0);
+      font-size: 18px;
+    }
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.0);
+    }
+</style>
+{% csrf_token %}
+</head>
+<body>
+<!--
+<ul>
+    <ul>
+        {% for key, value in data.items %}
+            <li>{{ key }}: {{ value }}</li>
+        {% endfor %}
+    </ul>
+</ul>
+<button onclick="sendRequestGTTB()">정보가져와!</button>
+<button onclick="setType(value)" value="OX">O/X</button>
+<button onclick="setType(value)" value="MT">객관식</button>
+<button onclick="setType(value)" value="SA">주관식</button>
+<br>
+<p>문제작성</p>
+<textarea id="id_question" placeholder='객관식의 경우, 선지를 꼭 써주세요!'></textarea>
+<fieldset id="id_ox" style="display: none;">
+    <legend>OX 답 작성</legend>
+    <button onclick="setAnswer(value)" value="O">O</button>
+    <button onclick="setAnswer(value)" value="X">X</button>
+</fieldset>
+<fieldset id="id_mt" style="display: none;">
+    <legend>객관식 답 작성</legend>
+    <button onclick="setAnswer(value)" value="1">1번</button>
+    <button onclick="setAnswer(value)" value="2">2번</button>
+    <br>
+    <button onclick="setAnswer(value)" value="3">3번</button>
+    <button onclick="setAnswer(value)" value="4">4번</button>
+</fieldset>
+<fieldset id="id_sa" style="display: none;">
+    <legend>주관식 답 작성</legend>
+    <input type="text" id="id_sa_answer">
+    <button onclick="setAnswerSA()">OK</button> 
+</fieldset>
+<br>
+<button onclick="sendRequestMKQZ()" id="id_make_test" style="display: none;">문항추가</button> 
+-->
+<div class="container">
+    <img src="{% static 'img/bp_cr8tb_1.png' %}" alt="banner" id="id_first_bp" style="display: block;">
+    <img src="{% static 'img/bp_cr8tb_2.png' %}" alt="banner" id="id_second_bp" style="display: none;">
+    
+    <div class="overlay">
+        <button id="id_next_btn" onclick="goNextPage();" class="transparent-button" style="bottom:102px; right:28px; width:55px; height: 55px;"></button>
+        <img src="{% static 'img/makecom8.png' %}" id="id_com8" class="transparent-img" style="top:400px; left:85px; width:230px; height: 100px; display:none;">
+        <button id="id_gogo" onclick="func6();" class="transparent-button" style="width:230px; height:100px; top: 400px; left: 85px; display: none;"></button>
+        <div id="id_1" class="transparent-text" style="top: 208px; left: 20px; display: none;"><b id="id_subject">조직이론 기초탄탄 10문제</b></span></div>
+        <div id="id_2" class="transparent-text" style="top: 292px; left: 20px; display: none;"><b id="id_price">500원</b></span></div>
+        <div id="id_3" class="transparent-text" style="top: 380px; left: 20px; font-size:14px; display: none;"><b id="id_question_a1">과거 이상적인 의사결정을 보여주는 모델이지만,</b></span></div>
+        <div id="id_4" class="transparent-text" style="top: 395px; left: 20px; font-size:14px; display: none;"><b id="id_question_a2">현실적으로 그 과정을 반영하지 못해 제안된 모델은?</b></span></div>
+        <div id="id_5" class="transparent-text" style="top: 500px; left: 20px; font-size:14px; display: none;"><b id="id_answer_a1">제한된 합리성</b></span></div>
+        <button onclick="func1();" class="transparent-button" style="width:380px; height:50px; top:208px; left: 20px;"></button>
+        <button onclick="func2();" class="transparent-button" style="width:380px; height:50px; top: 292px; left: 20px"></button>
+        <button onclick="func3();" class="transparent-button" style="width:380px; height:50px; top: 380px; left: 20px; font-size:14px;"></button>
+        <button onclick="func4();" class="transparent-button" style="width:380px; height:50px; top: 500px; left: 20px; font-size:14px;"></button>
+        <button onclick="func5();" class="transparent-button" style="width:380px; height:80px; bottom: 10px; left: 20px; font-size:14px;"></button>
+
+    </div>
+    </div>
+<script>
+function goNextPage() {
+    document.getElementById('id_next_btn').style.display = 'none';
+    document.getElementById('id_first_bp').style.display = 'none';
+    document.getElementById('id_second_bp').style.display = 'block';
+};
+function func1(){
+    document.getElementById('id_1').style.display = 'block';
+}
+function func2(){
+    document.getElementById('id_2').style.display = 'block';
+}
+function func3(){
+    document.getElementById('id_3').style.display = 'block';
+    document.getElementById('id_4').style.display = 'block';
+}
+function func4(){
+    document.getElementById('id_5').style.display = 'block';
+}
+function func5(){
+    document.getElementById('id_com8').style.display = 'block';
+    document.getElementById('id_gogo').style.display = 'block';
+}
+function func6(){
+    window.location.href = '/'
+}
+
+let type = 'DEFAULT';
+let answer = '';
+function setType(value){
+    type = value;
+    if (type === 'OX') {
+        document.getElementById('id_ox').style.display = 'block';
+        document.getElementById('id_mt').style.display = 'none';
+        document.getElementById('id_sa').style.display = 'none';
+    } else if (type === 'MT') {
+        document.getElementById('id_ox').style.display = 'none';
+        document.getElementById('id_mt').style.display = 'block';
+        document.getElementById('id_sa').style.display = 'none';
+    } else if (type === 'SA') {
+        document.getElementById('id_ox').style.display = 'none';
+        document.getElementById('id_mt').style.display = 'none';
+        document.getElementById('id_sa').style.display = 'block';
+    }
+    alert(type);
+};
+function setAnswer(value){
+    answer = value;
+    document.getElementById('id_make_test').style.display = 'block';
+    alert(answer);
+};
+function setAnswerSA(){
+    answer = document.getElementById('id_sa_answer').value;
+    document.getElementById('id_make_test').style.display = 'block';
+    alert(answer);
+};
+function sendRequestGTTB() {//TBPK로 정보가져옴
+    let test_bank_pk = '{{ data.test_bank_pk }}';
+    //json에 할당
+    const url = 'api_get_db';
+    const requestData = {
+        table: 'TESTBANK_TABLE',
+        primaryKey: test_bank_pk,
+    };
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // CSRF 토큰을 요청 헤더에 추가
+                },
+                body: JSON.stringify(requestData), // FormData를 JSON으로 변환
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('서버 응답:', data);
+        alert(JSON.stringify(data))
+        // 여기서 서버 응답에 대한 처리를 할 수 있습니다.
+    });
+}
+function sendRequestMKQZ() {
+    const test_bank_pk = '{{ data.test_bank_pk }}';
+    const question = document.getElementById('id_question').value;
+    //json에 할당
+    const url = 'api_make_test';
+    const requestData = {
+        test_bank_pk: test_bank_pk,
+        type: type,
+        question: question,
+    };
+    if (type === 'OX') {
+        requestData.ox_answer = answer;
+    } else if (type === 'MT') {
+        requestData.mt_answer = answer;
+    } else if (type === 'SA') {
+        requestData.sa_answer = answer;
+    }
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken  // CSRF 토큰을 요청 헤더에 추가
+        },
+        body: JSON.stringify(requestData), // FormData를 JSON으로 변환
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('서버 응답:', data);
+        alert(JSON.stringify(data))
+        question = '';
+        type = '';
+        answer = '';
+
+        // 여기서 서버 응답에 대한 처리를 할 수 있습니다.
+    });
+}
+
+</script>
+</body>
+</html>

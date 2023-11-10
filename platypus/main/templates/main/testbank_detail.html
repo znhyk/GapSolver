@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document</title>
+{% csrf_token %}
+</head>
+<body>
+<h1>TESTBANK_DETAIL</h1>
+<ul>
+    <ul>
+        {% for key, value in data.items %}
+            <li>{{ key }}: {{ value }}</li>
+        {% endfor %}
+    </ul>
+</ul>
+<script>
+const test_bank_pk = '{{ data.testbank_pk }}';
+
+</script>
+</body>
+</html>

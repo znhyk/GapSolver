@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document</title>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> <!-- Axios CDN -->
+{% csrf_token %}
+</head>
+<body>
+
+<h1>TESTBANK(나의테뱅)</h1>
+<ul>
+    <ul>
+        {% for key, value in data.items %}
+            {% if 'genre_code' in key %}
+                <li>{{ key }}:<a href="#" onclick="sendGenreSearch('{{ value }}')">{{ value }}</a></li>
+            {% else %}
+                <li>{{ key }}: {{ value }}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</ul>
+<br>
+<h1>ISBN SCANNER(테뱅검색)</h1>
+<p>책 뒷면의 바코드를 찍으면 테스트뱅크를 확인할 수 있습니다</p>
+<br>
+
+<div>
+    <video id="video" width="640" height="480" autoplay></video>
+    <br>
+    <input type="checkbox" id="randomCheckbox" onclick="showRandomCheckboxState()">
+    <label for="randomCheckbox">스캔 후 무작위 테뱅 시작</label>
+    <button id="snap">스캔하기</button>
+</div>
+
+<h1>관심분야로 검색</h1>
+<p>관심분야로 테스트뱅크를 검색할 수 있습니다.</p>
+<p>장르:</p>
+
+<input type="text" id="search_genre"><br>
+<button onclick="sendGenreSearch(document.getElementById('search_genre').value);">장르로 검색 보내기</button>
+<script>
+let randomCheckboxState = false;
+
+function showRandomCheckboxState() {
+    const checkbox = document.getElementById('randomCheckbox');
+    if (checkbox.checked) {
+        randomCheckboxState = true; // 체크되어 있을 때 변수 값을 true로 설정
+    } else {
+        randomCheckboxState = false; // 체크가 해제되어 있을 때 변수 값을 false로 설정
+    }
+    
+    alert('Checkbox state is: ' + randomCheckboxState); // checkboxState 변수 alert으로 출력
+}
+function sendGenreSearch(genre) {
+    //json에 할당
+    const url = 'api_search_testbank_by_genre';
+    const requestData = {
+        genre: genre,
+    };
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // CSRF 토큰을 요청 헤더에 추가
+                },
+                body: JSON.stringify(requestData), // FormData를 JSON으로 변환
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('서버 응답:', data);
+        alert(JSON.stringify(data))
+        // 여기서 서버 응답에 대한 처리를 할 수 있습니다.
+    });
+}
+</script>
+
+<script>
+    //ISBN찾는 api
+    function sendISBNSearch(ISBN) {
+    //json에 할당
+    const url = 'api_search_testbank_by_ISBN';
+    const requestData = {
+        ISBN: ISBN,
+    };
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // CSRF 토큰을 요청 헤더에 추가
+                },
+                body: JSON.stringify(requestData), // FormData를 JSON으로 변환
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('서버 응답:', data);
+        alert(JSON.stringify(data))
+        if (randomCheckboxState) {
+            const test_bank_pk = data.random_testbank_pk
+            const newURL = `/justsolve?pk=${test_bank_pk}`;
+            window.location.href = newURL;
+        } else {
+        }
+        // 여기서 서버 응답에 대한 처리를 할 수 있습니다.
+    });
+}
+
+    // 카메라 접근 및 사진 찍기
+    navigator.mediaDevices.getUserMedia({video: true})//{ video: { facingMode: 'environment' } }
+        .then(stream => {
+            const video = document.getElementById('video');
+            video.srcObject = stream;
+        })
+        .catch(err => {
+            console.error('카메라에 접근할 수 없습니다.', err);
+        });
+
+    const snapButton = document.getElementById('snap');
+    snapButton.addEventListener('click', () => {
+        const video = document.getElementById('video');
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob(blob => {
+            const formData = new FormData();
+            formData.append('image', blob, 'snapshot.jpg');
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            // Axios를 사용하여 이미지를 서버로 전송
+            axios.post('api_barcode_reader', formData)
+                .then(response => {
+                    alert(response.data);
+                    sendISBNSearch(response.data);
+                })
+                .catch(error => {
+                    console.error('이미지를 서버로 전송하는 중 오류가 발생했습니다.', error);
+                });
+        }, 'image/jpeg');
+    });
+</script>
+</body>
+</html>
